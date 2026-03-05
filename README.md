@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # todoapp
 
 A new Flutter project.
@@ -17,4 +17,4 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 =======
 # todoapp
->>>>>>> 8f9b7de90a472f8c3c8aac8cbb3490d229e65f2b
+
