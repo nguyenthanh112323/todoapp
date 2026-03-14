@@ -20,6 +20,7 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return Card(
+
       child: ListTile(
 
         // leading: Checkbox(

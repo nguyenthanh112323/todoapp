@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'task.dart';
 import 'widget_task_card.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
   @override
@@ -10,6 +12,14 @@ class Homescreen extends StatefulWidget {
 }
 class _HomescreenState extends State<Homescreen>{
   List<Task> tasklist = [];
+  Future<void> saveTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    List<String> taskList =
+    tasklist.map((task) => jsonEncode(task.toJson())).toList();
+
+    prefs.setStringList('tasks', taskList);
+  }
   DateTime now = DateTime.now();
   DateTime hournow = DateTime.now();
   String getDateString(DateTime date) {
@@ -37,7 +47,7 @@ class _HomescreenState extends State<Homescreen>{
   List<Task> completedday(){
     return tasklist.where((task) => task.completed).toList();
   }
-  Widget culender() {
+  Widget calendar() {
     return Container(
     color: Color(0xFF2D2F5F),
     margin: EdgeInsets.all(0) ,
@@ -84,10 +94,27 @@ class _HomescreenState extends State<Homescreen>{
                )),
        padding: EdgeInsets.all(0),
        child: Container(
+         decoration: BoxDecoration(
+             gradient: LinearGradient(
+               begin: Alignment.topCenter,
+               end: Alignment.bottomCenter,
+               colors: [
+                 Color(0xFF1E1FA3),
+                 Color(0xFF8E90C5),
+               ],
+             )),
+         child: Stack(
+           children: [AlertDialog(
+           backgroundColor: Color.fromARGB(1,1,1,1),
+           title: Text('Add Task', style: TextStyle(
+               fontSize: 40,
+               fontWeight: FontWeight.bold,
+               color: Colors.white,
 
-         child: AlertDialog(
-           backgroundColor: Color(0xFF8E90C5),
-           title: Text('Add Task', style: TextStyle(fontSize: 34,color: Colors.white)
+
+           ),
+
+
            ),
            content: Column(
              children: [
@@ -126,7 +153,8 @@ class _HomescreenState extends State<Homescreen>{
            ],
 
          ),
-       ),
+       ]),
+     )
      );
        }
    );
@@ -179,22 +207,43 @@ class _HomescreenState extends State<Homescreen>{
             setState(() {
               task.completed = !task.completed;
             });
+            saveTasks();
           },
 
           onDelete: (){
             setState(() {
               tasklist.remove(task);
             });
+            saveTasks();
           },
 
           onEdit: (){
             edittask(task);
+            saveTasks();
           },
 
         );
 
       }).toList(),
     );
+  }
+  Future<void> loadTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    List<String>? taskList = prefs.getStringList('tasks');
+
+    if (taskList != null) {
+      setState(() {
+        tasklist = taskList
+            .map((task) => Task.formJson(jsonDecode(task)))
+            .toList();
+      });
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+    loadTasks();
   }
 
   @override
@@ -254,7 +303,7 @@ class _HomescreenState extends State<Homescreen>{
              )),
          child: Column(
              children: [
-               culender(),
+               calendar(),
           Container(
          color: Colors.white,
             child:  TabBar(
